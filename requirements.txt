@@ -1,0 +1,12 @@
+faster-whisper==1.1.1
+fastapi==0.115.8
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+httpx==0.28.1
+pydantic==2.10.6
+pydantic-settings==2.8.0
+aiofiles==24.1.0
+aiosqlite==0.21.0
+deep-translator==1.11.4
+nvidia-cublas-cu12
+nvidia-cudnn-cu12
