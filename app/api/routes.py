@@ -84,9 +84,17 @@ async def _run_transcription(
     delete_after: bool,
     translation_lang: str | None = None,
 ) -> None:
-    """Background task: transcribe, persist result, then optionally translate."""
+    """Background task: extract audio if video, transcribe, persist result, then optionally translate."""
+    wav_path: Path | None = None
     try:
-        result = await Transcriber.get().transcribe(audio_path, options, job_id=job_id)
+        # Extract audio track first if the upload is a video file
+        if audio_service.is_video(audio_path):
+            wav_path = audio_service.extract_audio(audio_path)
+            transcribe_path = wav_path
+        else:
+            transcribe_path = audio_path
+
+        result = await Transcriber.get().transcribe(transcribe_path, options, job_id=job_id)
         await db.update_job_done(job_id, result)
 
         if translation_lang and result.segments:
@@ -104,6 +112,8 @@ async def _run_transcription(
         logger.exception("Transcription failed for job %d", job_id)
         await db.update_job_error(job_id, exc)
     finally:
+        if wav_path:
+            audio_service.cleanup(wav_path)
         if delete_after:
             audio_service.cleanup(audio_path)
 
@@ -232,7 +242,10 @@ async def job_from_url(
     async def _bg() -> None:
         audio_path: Path | None = None
         try:
-            audio_path = await audio_service.download_url(url_str)
+            if audio_service.is_youtube_url(url_str):
+                audio_path = audio_service.download_youtube(url_str)
+            else:
+                audio_path = await audio_service.download_url(url_str)
             await _run_transcription(job_id, audio_path, options, True)
         except Exception as exc:
             await db.update_job_error(job_id, exc)
@@ -304,10 +317,16 @@ async def transcribe_file(
         hotwords=hotwords,
     )
     audio_path: Path | None = None
+    wav_path: Path | None = None
     try:
         audio_path = await audio_service.save_upload(file)
+        if audio_service.is_video(audio_path):
+            wav_path = audio_service.extract_audio(audio_path)
+            return await Transcriber.get().transcribe(wav_path, options)
         return await Transcriber.get().transcribe(audio_path, options)
     finally:
+        if wav_path:
+            audio_service.cleanup(wav_path)
         if audio_path:
             audio_service.cleanup(audio_path)
 
@@ -323,10 +342,19 @@ async def transcribe_url(
     _: None = Depends(_check_auth),
 ) -> TranscribeResponse:
     audio_path: Path | None = None
+    wav_path: Path | None = None
     try:
-        audio_path = await audio_service.download_url(str(body.url))
+        if audio_service.is_youtube_url(str(body.url)):
+            audio_path = audio_service.download_youtube(str(body.url))
+        else:
+            audio_path = await audio_service.download_url(str(body.url))
         options = TranscribeOptions(**body.model_dump(exclude={"url"}))
+        if audio_service.is_video(audio_path):
+            wav_path = audio_service.extract_audio(audio_path)
+            return await Transcriber.get().transcribe(wav_path, options)
         return await Transcriber.get().transcribe(audio_path, options)
     finally:
+        if wav_path:
+            audio_service.cleanup(wav_path)
         if audio_path:
             audio_service.cleanup(audio_path)

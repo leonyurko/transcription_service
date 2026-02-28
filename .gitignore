@@ -22,6 +22,27 @@ ENV/
 *.db
 uploads/
 
+# Audio / video files (uploads, downloads, extracted audio)
+*.mp3
+*.mp4
+*.m4a
+*.wav
+*.flac
+*.ogg
+*.opus
+*.webm
+*.weba
+*.mkv
+*.avi
+*.mov
+*.aac
+*.wma
+*.aiff
+*.aif
+
+# Temporary working directory used by the transcription service
+/tmp/
+
 # Logs
 *.log
 

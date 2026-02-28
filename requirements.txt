@@ -8,5 +8,7 @@ pydantic-settings==2.8.0
 aiofiles==24.1.0
 aiosqlite==0.21.0
 deep-translator==1.11.4
-nvidia-cublas-cu12
-nvidia-cudnn-cu12
+yt-dlp
+ffmpeg-python==0.2.0
+nvidia-cublas-cu12; sys_platform == "linux"
+nvidia-cudnn-cu12; sys_platform == "linux"

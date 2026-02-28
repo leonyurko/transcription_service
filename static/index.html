@@ -164,6 +164,51 @@
     .cb   { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; cursor: pointer; }
     .cb input { width: 14px; height: 14px; cursor: pointer; accent-color: var(--accent); }
 
+    /* ── YouTube input ──────────────────────────── */
+    .yt-section {
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .yt-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .yt-label .yt-icon { font-size: 15px; }
+    #inp-yt-url {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      color: var(--text);
+      padding: 7px 10px;
+      font-size: 13px;
+      outline: none;
+    }
+    #inp-yt-url:focus { border-color: #ff4444; }
+    .btn-yt {
+      background: #cc0000;
+      color: #fff;
+      padding: 10px 14px;
+      width: 100%;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: var(--r);
+      border: none;
+      cursor: pointer;
+      transition: .12s;
+    }
+    .btn-yt:hover:not(:disabled) { background: #aa0000; }
+    .btn-yt:disabled { opacity: .45; cursor: not-allowed; }
+
     /* ── Jobs area ─────────────────────────────── */
     #jobs-area {
       display: flex;
@@ -509,6 +554,13 @@
     <button class="btn-primary" id="btn-transcribe" style="width:100%;padding:10px;margin-top:2px">
       Transcribe
     </button>
+
+    <!-- YouTube section -->
+    <div class="yt-section">
+      <div class="yt-label"><span class="yt-icon">▶</span> YouTube</div>
+      <input type="text" id="inp-yt-url" placeholder="https://youtube.com/watch?v=..." />
+      <button class="btn-yt" id="btn-yt">Transcribe YouTube</button>
+    </div>
   </div>
 
   <!-- Jobs area -->
@@ -700,6 +752,51 @@ async function transcribe() {
     toast(e.message, 'err');
   } finally {
     btn.textContent = 'Transcribe';
+    btn.disabled = false;
+  }
+}
+
+// ── YouTube ───────────────────────────────────────────────────────────────────
+async function transcribeYoutube() {
+  const url = $('inp-yt-url').value.trim();
+  if (!url) { toast('Paste a YouTube URL first', 'err'); return; }
+
+  const body = {
+    url,
+    language:                $('sel-lang').value  || null,
+    task:                    $('sel-task').value,
+    word_timestamps:          $('chk-words').checked,
+    vad_filter:              true,
+    beam_size:               5,
+    temperature:             0.0,
+    condition_on_previous_text: true,
+  };
+  const tlang = $('sel-tlang').value;
+  if (tlang) body.translation_lang = tlang;
+
+  const btn = $('btn-yt');
+  btn.textContent = 'Downloading…';
+  btn.disabled = true;
+
+  try {
+    const headers = { 'Content-Type': 'application/json' };
+    if (S.key) headers['Authorization'] = `Bearer ${S.key}`;
+    const res = await fetch(`${S.url}/api/v1/jobs/url`, {
+      method: 'POST', headers, body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({ detail: res.statusText }));
+      throw new Error(e.detail || res.statusText);
+    }
+    const job = await res.json();
+    toast(`Job #${job.job_id} queued — downloading & transcribing…`);
+    $('inp-yt-url').value = '';
+    await refresh();
+    poll();
+  } catch (e) {
+    toast(e.message, 'err');
+  } finally {
+    btn.textContent = 'Transcribe YouTube';
     btn.disabled = false;
   }
 }
@@ -899,6 +996,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   $('btn-save').addEventListener('click', saveSettings);
   $('btn-apply').addEventListener('click', applyModel);
   $('btn-transcribe').addEventListener('click', transcribe);
+  $('btn-yt').addEventListener('click', transcribeYoutube);
+  $('inp-yt-url').addEventListener('keydown', e => { if (e.key === 'Enter') transcribeYoutube(); });
 
   document.querySelectorAll('.tab').forEach(btn =>
     btn.addEventListener('click', () => {
