@@ -42,6 +42,7 @@ class TranscribeOptions(BaseModel):
 
 class TranscribeUrlRequest(TranscribeOptions):
     url: HttpUrl = Field(description="Publicly accessible audio/video URL.")
+    passcode: str | None = Field(default=None, description="Passcode for password-protected Zoom recordings.")
 
 
 # ── Response models ─────────────────────────────────────────────────────────────

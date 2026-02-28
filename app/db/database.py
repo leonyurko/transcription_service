@@ -182,3 +182,14 @@ async def delete_job(job_id: int) -> bool:
         await db.execute("DELETE FROM jobs WHERE id=?", (job_id,))
         await db.commit()
     return True
+
+
+async def rename_job(job_id: int, filename: str) -> bool:
+    """Update the display filename of a job. Returns False if not found."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        cur = await db.execute(
+            "UPDATE jobs SET filename=? WHERE id=?", (filename.strip(), job_id)
+        )
+        await db.commit()
+        return cur.rowcount > 0
+

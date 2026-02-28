@@ -3,6 +3,7 @@ FastAPI route definitions.
 """
 import logging
 import uuid
+import webbrowser
 from pathlib import Path
 
 import aiofiles
@@ -240,10 +241,24 @@ async def job_from_url(
     options = TranscribeOptions(**body.model_dump(exclude={"url"}))
 
     async def _bg() -> None:
+        import asyncio, functools
         audio_path: Path | None = None
+        loop = asyncio.get_event_loop()
         try:
-            if audio_service.is_youtube_url(url_str):
-                audio_path = audio_service.download_youtube(url_str)
+            if audio_service.is_zoom_url(url_str):
+                audio_path = await loop.run_in_executor(
+                    None,
+                    functools.partial(
+                        audio_service.download_zoom,
+                        url_str,
+                        passcode=body.passcode,
+                    ),
+                )
+            elif audio_service.is_youtube_url(url_str):
+                audio_path = await loop.run_in_executor(
+                    None,
+                    functools.partial(audio_service.download_youtube, url_str),
+                )
             else:
                 audio_path = await audio_service.download_url(url_str)
             await _run_transcription(job_id, audio_path, options, True)
@@ -252,6 +267,17 @@ async def job_from_url(
 
     background_tasks.add_task(_bg)
     return {"job_id": job_id, "status": "processing"}
+
+
+@router.get("/zoom/auth", tags=["Zoom"])
+async def zoom_auth(
+    url: str | None = None,
+    _: None = Depends(_check_auth),
+) -> dict:
+    """Open the Zoom recording (or sign-in page) in the user's default browser."""
+    target = url or "https://zoom.us/signin"
+    webbrowser.open(target)
+    return {"opened": True, "url": target}
 
 
 @router.get("/jobs", tags=["Jobs"])
@@ -271,6 +297,21 @@ async def get_job(job_id: int, _: None = Depends(_check_auth)) -> dict:
 async def delete_job(job_id: int, _: None = Depends(_check_auth)) -> None:
     if not await db.delete_job(job_id):
         raise HTTPException(404, "Job not found.")
+
+
+@router.patch("/jobs/{job_id}", tags=["Jobs"])
+async def rename_job(
+    job_id: int,
+    body: dict = Body(...),
+    _: None = Depends(_check_auth),
+) -> dict:
+    """Rename the display filename of a job (used as audio/transcript download name)."""
+    new_name = (body.get("filename") or "").strip()
+    if not new_name:
+        raise HTTPException(422, "filename must not be empty.")
+    if not await db.rename_job(job_id, new_name):
+        raise HTTPException(404, "Job not found.")
+    return {"job_id": job_id, "filename": new_name}
 
 
 @router.get("/audio/{job_id}", tags=["Jobs"])
@@ -344,7 +385,9 @@ async def transcribe_url(
     audio_path: Path | None = None
     wav_path: Path | None = None
     try:
-        if audio_service.is_youtube_url(str(body.url)):
+        if audio_service.is_zoom_url(str(body.url)):
+            audio_path = audio_service.download_zoom(str(body.url), passcode=body.passcode)
+        elif audio_service.is_youtube_url(str(body.url)):
             audio_path = audio_service.download_youtube(str(body.url))
         else:
             audio_path = await audio_service.download_url(str(body.url))

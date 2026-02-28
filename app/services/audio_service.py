@@ -78,7 +78,7 @@ def extract_audio(video_path: Path) -> Path:
     return out_path
 
 
-# ── YouTube support ───────────────────────────────────────────────────────────
+# ── YouTube + Zoom URL detection ────────────────────────────────────────────
 
 import re as _re
 
@@ -88,10 +88,20 @@ _YT_PATTERN = _re.compile(
     _re.IGNORECASE,
 )
 
+_ZOOM_PATTERN = _re.compile(
+    r"https?://[\w.-]*\.?zoom\.us/rec/",
+    _re.IGNORECASE,
+)
+
 
 def is_youtube_url(url: str) -> bool:
     """Return True if the URL points to YouTube."""
     return bool(_YT_PATTERN.search(url))
+
+
+def is_zoom_url(url: str) -> bool:
+    """Return True if the URL points to a Zoom cloud recording."""
+    return bool(_ZOOM_PATTERN.search(url))
 
 
 def download_youtube(url: str) -> Path:
@@ -138,6 +148,76 @@ def download_youtube(url: str) -> Path:
         out_path = candidates[0]
 
     logger.debug("Downloaded YouTube audio to %s", out_path)
+    return out_path
+
+
+# ── Zoom support ───────────────────────────────────────────────────────────
+
+# Browser names yt-dlp accepts for --cookies-from-browser, tried in order
+_BROWSERS = ("chrome", "edge", "firefox", "chromium")
+
+
+def download_zoom(url: str, passcode: str | None = None) -> Path:
+    """
+    Download a Zoom cloud recording using yt-dlp with browser cookies.
+    Tries Chrome → Edge → Firefox → Chromium.
+
+    Raises:
+        HTTPException(401)  if authentication is required (browser not signed in)
+        HTTPException(422)  on other yt-dlp failures
+    """
+    import sys as _sys
+
+    stem = _tmp_path("")
+    expected = stem.with_suffix(".wav")
+
+    def _build_cmd(browser: str) -> list[str]:
+        cmd = [
+            _sys.executable, "-m", "yt_dlp",
+            "--no-playlist",
+            "--extract-audio",
+            "--audio-format", "wav",
+            "--postprocessor-args", "ffmpeg:-ar 16000 -ac 1",
+            "--cookies-from-browser", browser,
+            "--output", str(stem),
+            "--no-progress",
+            "--quiet",
+        ]
+        if passcode:
+            cmd += ["--video-password", passcode]
+        cmd.append(url)
+        return cmd
+
+    last_stderr = ""
+    for browser in _BROWSERS:
+        result = subprocess.run(
+            _build_cmd(browser),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        last_stderr = result.stderr.decode(errors="replace")
+        if result.returncode == 0:
+            break
+        logger.debug("yt-dlp/%s failed: %s", browser, last_stderr[:200])
+    else:
+        # All browsers failed — always treat as an auth/access issue
+        # (cookie read errors, 403, login-required all need the user to sign in)
+        logger.warning("Zoom download failed for all browsers. Last stderr: %s", last_stderr[:300])
+        raise HTTPException(
+            status_code=401,
+            detail="zoom_auth_required",
+        )
+
+    # Resolve output file
+    if expected.exists():
+        out_path = expected
+    else:
+        candidates = sorted(stem.parent.glob(stem.name + ".*"))
+        if not candidates:
+            raise HTTPException(status_code=500, detail="yt-dlp produced no output file.")
+        out_path = candidates[0]
+
+    logger.debug("Downloaded Zoom audio to %s", out_path)
     return out_path
 
 

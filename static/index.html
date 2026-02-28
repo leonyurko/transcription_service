@@ -1,26 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Transcription Manager</title>
   <style>
     :root {
-      --bg:       #0d1117;
-      --surface:  #161b22;
+      --bg: #0d1117;
+      --surface: #161b22;
       --surface2: #21262d;
-      --border:   #30363d;
-      --accent:   #58a6ff;
+      --border: #30363d;
+      --accent: #58a6ff;
       --accent-b: #1f6feb;
-      --text:     #e6edf3;
-      --muted:    #8b949e;
-      --ok:       #3fb950;
-      --warn:     #d29922;
-      --err:      #f85149;
-      --r:        6px;
-      --sh:       0 8px 24px rgba(0,0,0,.45);
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --ok: #3fb950;
+      --warn: #d29922;
+      --err: #f85149;
+      --r: 6px;
+      --sh: 0 8px 24px rgba(0, 0, 0, .45);
     }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
       background: var(--bg);
@@ -45,8 +53,16 @@
       z-index: 100;
       flex-shrink: 0;
     }
-    header h1 { font-size: 15px; font-weight: 600; letter-spacing: -.2px; }
-    .spacer   { flex: 1; }
+
+    header h1 {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -.2px;
+    }
+
+    .spacer {
+      flex: 1;
+    }
 
     .status-pill {
       display: flex;
@@ -59,31 +75,84 @@
       border-radius: 20px;
       padding: 4px 10px;
     }
+
     .dot {
-      width: 7px; height: 7px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       background: var(--muted);
       flex-shrink: 0;
     }
-    .dot.ok   { background: var(--ok); }
-    .dot.err  { background: var(--err); }
+
+    .dot.ok {
+      background: var(--ok);
+    }
+
+    .dot.err {
+      background: var(--err);
+    }
 
     /* ── Buttons ───────────────────────────────── */
-    button { cursor: pointer; border: none; border-radius: var(--r); font-size: 13px; font-weight: 500; transition: .12s; }
-    button:disabled { opacity: .45; cursor: not-allowed; }
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: var(--r);
+      font-size: 13px;
+      font-weight: 500;
+      transition: .12s;
+    }
 
-    .btn-primary   { background: var(--accent-b); color: #fff; padding: 7px 14px; }
-    .btn-primary:hover:not(:disabled) { background: #1c5fb0; }
+    button:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
 
-    .btn-secondary { background: var(--surface2); color: var(--text); padding: 7px 14px; border: 1px solid var(--border); }
-    .btn-secondary:hover:not(:disabled) { background: #2d333b; }
+    .btn-primary {
+      background: var(--accent-b);
+      color: #fff;
+      padding: 7px 14px;
+    }
 
-    .btn-ghost { background: transparent; color: var(--muted); padding: 5px 10px; }
-    .btn-ghost:hover { color: var(--text); background: var(--surface2); }
+    .btn-primary:hover:not(:disabled) {
+      background: #1c5fb0;
+    }
 
-    .btn-icon { padding: 5px 8px; font-size: 15px; }
-    .btn-del  { background: transparent; color: var(--err); padding: 5px 8px; }
-    .btn-del:hover { background: rgba(248,81,73,.1); }
+    .btn-secondary {
+      background: var(--surface2);
+      color: var(--text);
+      padding: 7px 14px;
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: #2d333b;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      padding: 5px 10px;
+    }
+
+    .btn-ghost:hover {
+      color: var(--text);
+      background: var(--surface2);
+    }
+
+    .btn-icon {
+      padding: 5px 8px;
+      font-size: 15px;
+    }
+
+    .btn-del {
+      background: transparent;
+      color: var(--err);
+      padding: 5px 8px;
+    }
+
+    .btn-del:hover {
+      background: rgba(248, 81, 73, .1);
+    }
 
     /* ── Settings panel ────────────────────────── */
     #settings-panel {
@@ -92,7 +161,10 @@
       padding: 16px 20px;
       display: none;
     }
-    #settings-panel.open { display: block; }
+
+    #settings-panel.open {
+      display: block;
+    }
 
     .sg {
       display: grid;
@@ -100,13 +172,36 @@
       gap: 12px;
       max-width: 860px;
     }
-    .sg .full { grid-column: 1 / -1; display: flex; gap: 8px; align-items: flex-end; }
 
-    label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: .5px; }
-    .field { display: flex; gap: 6px; }
-    .field input, .field select { flex: 1; }
+    .sg .full {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+    }
 
-    input[type=text], input[type=password], select {
+    label {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .field {
+      display: flex;
+      gap: 6px;
+    }
+
+    .field input,
+    .field select {
+      flex: 1;
+    }
+
+    input[type=text],
+    input[type=password],
+    select {
       width: 100%;
       background: var(--bg);
       border: 1px solid var(--border);
@@ -116,9 +211,19 @@
       font-size: 13px;
       outline: none;
     }
-    input:focus, select:focus { border-color: var(--accent); }
-    select option { background: var(--bg); }
-    option.dl { color: var(--muted); }
+
+    input:focus,
+    select:focus {
+      border-color: var(--accent);
+    }
+
+    select option {
+      background: var(--bg);
+    }
+
+    option.dl {
+      color: var(--muted);
+    }
 
     /* ── Main layout ───────────────────────────── */
     main {
@@ -138,7 +243,14 @@
       flex-direction: column;
       gap: 14px;
     }
-    #sidebar h2 { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+
+    #sidebar h2 {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
 
     #drop-zone {
       border: 2px dashed var(--border);
@@ -151,18 +263,53 @@
       font-size: 13px;
       user-select: none;
     }
-    #drop-zone:hover, #drop-zone.over {
+
+    #drop-zone:hover,
+    #drop-zone.over {
       border-color: var(--accent);
-      background: rgba(88,166,255,.05);
+      background: rgba(88, 166, 255, .05);
       color: var(--accent);
     }
-    #drop-zone .dz-icon { font-size: 26px; margin-bottom: 6px; }
-    #drop-zone .dz-hint { font-size: 11px; margin-top: 3px; }
-    #drop-zone .dz-name { font-weight: 500; color: var(--text); margin-top: 8px; word-break: break-all; font-size: 12px; }
 
-    .frow { display: flex; flex-direction: column; gap: 4px; }
-    .cb   { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; cursor: pointer; }
-    .cb input { width: 14px; height: 14px; cursor: pointer; accent-color: var(--accent); }
+    #drop-zone .dz-icon {
+      font-size: 26px;
+      margin-bottom: 6px;
+    }
+
+    #drop-zone .dz-hint {
+      font-size: 11px;
+      margin-top: 3px;
+    }
+
+    #drop-zone .dz-name {
+      font-weight: 500;
+      color: var(--text);
+      margin-top: 8px;
+      word-break: break-all;
+      font-size: 12px;
+    }
+
+    .frow {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .cb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .cb input {
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
+      accent-color: var(--accent);
+    }
 
     /* ── YouTube input ──────────────────────────── */
     .yt-section {
@@ -172,6 +319,7 @@
       flex-direction: column;
       gap: 8px;
     }
+
     .yt-label {
       display: flex;
       align-items: center;
@@ -182,7 +330,11 @@
       text-transform: uppercase;
       letter-spacing: .5px;
     }
-    .yt-label .yt-icon { font-size: 15px; }
+
+    .yt-label .yt-icon {
+      font-size: 15px;
+    }
+
     #inp-yt-url {
       width: 100%;
       background: var(--bg);
@@ -193,7 +345,11 @@
       font-size: 13px;
       outline: none;
     }
-    #inp-yt-url:focus { border-color: #ff4444; }
+
+    #inp-yt-url:focus {
+      border-color: #ff4444;
+    }
+
     .btn-yt {
       background: #cc0000;
       color: #fff;
@@ -206,8 +362,15 @@
       cursor: pointer;
       transition: .12s;
     }
-    .btn-yt:hover:not(:disabled) { background: #aa0000; }
-    .btn-yt:disabled { opacity: .45; cursor: not-allowed; }
+
+    .btn-yt:hover:not(:disabled) {
+      background: #aa0000;
+    }
+
+    .btn-yt:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
 
     /* ── Jobs area ─────────────────────────────── */
     #jobs-area {
@@ -223,6 +386,7 @@
       padding: 0 18px;
       flex-shrink: 0;
     }
+
     .tab {
       background: transparent;
       color: var(--muted);
@@ -233,8 +397,15 @@
       font-weight: 500;
       margin-bottom: -1px;
     }
-    .tab:hover { color: var(--text); }
-    .tab.active { color: var(--text); border-bottom-color: var(--accent); }
+
+    .tab:hover {
+      color: var(--text);
+    }
+
+    .tab.active {
+      color: var(--text);
+      border-bottom-color: var(--accent);
+    }
 
     #jobs-scroll {
       flex: 1;
@@ -243,7 +414,11 @@
     }
 
     /* ── Table ─────────────────────────────────── */
-    .jt { width: 100%; border-collapse: collapse; }
+    .jt {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
     .jt th {
       text-align: left;
       font-size: 11px;
@@ -254,51 +429,131 @@
       padding: 7px 10px;
       border-bottom: 1px solid var(--border);
     }
+
     .jt td {
       padding: 9px 10px;
       border-bottom: 1px solid var(--border);
       vertical-align: middle;
     }
-    .jt tr:last-child td { border-bottom: none; }
-    .jt tr:hover td     { background: rgba(255,255,255,.018); }
 
-    .cell-file { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 190px; }
-    .cell-prev { color: var(--muted); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 340px; }
+    .jt tr:last-child td {
+      border-bottom: none;
+    }
+
+    .jt tr:hover td {
+      background: rgba(255, 255, 255, .018);
+    }
+
+    .cell-file {
+      font-weight: 500;
+      max-width: 320px;
+    }
+
+    .cell-file-inner {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cell-file-inner span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .cell-prev {
+      color: var(--muted);
+      font-style: italic;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 340px;
+    }
 
     /* ── Badges ────────────────────────────────── */
     .badge {
-      display: inline-flex; align-items: center; gap: 4px;
-      padding: 2px 8px; border-radius: 20px;
-      font-size: 11px; font-weight: 600; white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
     }
-    .bdot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-    .b-done { background: rgba(63,185,80,.15); color: var(--ok); }
-    .b-proc { background: rgba(88,166,255,.15); color: var(--accent); }
-    .b-err  { background: rgba(248,81,73,.15);  color: var(--err); }
-    .b-proc .bdot { animation: pulse 1.3s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.25} }
+
+    .bdot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .b-done {
+      background: rgba(63, 185, 80, .15);
+      color: var(--ok);
+    }
+
+    .b-proc {
+      background: rgba(88, 166, 255, .15);
+      color: var(--accent);
+    }
+
+    .b-err {
+      background: rgba(248, 81, 73, .15);
+      color: var(--err);
+    }
+
+    .b-proc .bdot {
+      animation: pulse 1.3s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .25
+      }
+    }
 
     /* ── Progress bar ──────────────────────────── */
-    .prog-cell { min-width: 140px; }
-    .prog-wrap {
-      display: flex; align-items: center; gap: 8px;
+    .prog-cell {
+      min-width: 140px;
     }
+
+    .prog-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
     .prog-track {
-      flex: 1; height: 6px;
+      flex: 1;
+      height: 6px;
       background: var(--surface2);
       border-radius: 3px;
       overflow: hidden;
       border: 1px solid var(--border);
     }
+
     .prog-fill {
       height: 100%;
       background: var(--accent);
       border-radius: 3px;
       transition: width 0.6s ease;
     }
+
     .prog-pct {
-      font-size: 11px; color: var(--accent);
-      font-weight: 600; min-width: 28px;
+      font-size: 11px;
+      color: var(--accent);
+      font-weight: 600;
+      min-width: 28px;
       text-align: right;
     }
 
@@ -308,19 +563,30 @@
       padding: 70px 20px;
       color: var(--muted);
     }
-    .empty .ei { font-size: 38px; margin-bottom: 10px; }
-    .empty p   { font-size: 13px; }
+
+    .empty .ei {
+      font-size: 38px;
+      margin-bottom: 10px;
+    }
+
+    .empty p {
+      font-size: 13px;
+    }
 
     /* ── Modal ─────────────────────────────────── */
     #overlay {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,.72);
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .72);
       z-index: 200;
       display: none;
       align-items: center;
       justify-content: center;
     }
-    #overlay.open { display: flex; }
+
+    #overlay.open {
+      display: flex;
+    }
 
     #modal {
       background: var(--surface);
@@ -333,6 +599,7 @@
       flex-direction: column;
       box-shadow: var(--sh);
     }
+
     .mh {
       padding: 14px 18px;
       border-bottom: 1px solid var(--border);
@@ -340,25 +607,54 @@
       align-items: center;
       gap: 10px;
     }
-    .mh h2 { flex: 1; font-size: 15px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .mh h2 {
+      flex: 1;
+      font-size: 15px;
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     .mmeta {
-      display: flex; gap: 20px; flex-wrap: wrap;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
       padding: 10px 18px;
       background: var(--surface2);
       border-bottom: 1px solid var(--border);
     }
-    .mi      { font-size: 12px; color: var(--muted); }
-    .mi span { color: var(--text); font-weight: 500; }
-    .mb { flex: 1; overflow-y: auto; padding: 18px; }
+
+    .mi {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .mi span {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .mb {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px;
+    }
 
     .seg-row {
-      display: flex; gap: 14px;
+      display: flex;
+      gap: 14px;
       padding: 8px 10px;
       border-radius: var(--r);
       font-size: 13px;
       line-height: 1.6;
     }
-    .seg-row:hover { background: var(--surface2); }
+
+    .seg-row:hover {
+      background: var(--surface2);
+    }
+
     .seg-ts {
       color: var(--accent);
       font-size: 11px;
@@ -375,30 +671,49 @@
       border-top: 1px solid var(--border);
       padding-top: 14px;
     }
+
     .transl-header {
-      display: flex; align-items: center; gap: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
       margin-bottom: 10px;
-      font-size: 11px; font-weight: 600;
-      color: var(--muted); text-transform: uppercase; letter-spacing: .5px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .5px;
     }
+
     .transl-badge {
-      background: rgba(88,166,255,.15); color: var(--accent);
-      padding: 2px 8px; border-radius: 20px;
-      font-size: 11px; font-weight: 600;
+      background: rgba(88, 166, 255, .15);
+      color: var(--accent);
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
     }
+
     .transl-text {
-      padding: 8px 10px; line-height: 1.75;
-      white-space: pre-wrap; word-break: break-word;
+      padding: 8px 10px;
+      line-height: 1.75;
+      white-space: pre-wrap;
+      word-break: break-word;
       font-size: 13px;
-      direction: auto; unicode-bidi: plaintext;
+      direction: auto;
+      unicode-bidi: plaintext;
     }
 
     /* ── Toasts ────────────────────────────────── */
     #toasts {
-      position: fixed; bottom: 18px; right: 18px;
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
       z-index: 300;
-      display: flex; flex-direction: column; gap: 7px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
     }
+
     .toast {
       background: var(--surface2);
       border: 1px solid var(--border);
@@ -409,615 +724,899 @@
       box-shadow: var(--sh);
       animation: tin .18s ease;
     }
-    .toast.ok  { border-left: 3px solid var(--ok); }
-    .toast.err { border-left: 3px solid var(--err); }
-    @keyframes tin { from{transform:translateX(16px);opacity:0} to{transform:none;opacity:1} }
+
+    .toast.ok {
+      border-left: 3px solid var(--ok);
+    }
+
+    .toast.err {
+      border-left: 3px solid var(--err);
+    }
+
+    @keyframes tin {
+      from {
+        transform: translateX(16px);
+        opacity: 0
+      }
+
+      to {
+        transform: none;
+        opacity: 1
+      }
+    }
 
     /* ── Scrollbar ─────────────────────────────── */
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    /* ── Zoom recording input ────────────────────────── */
+    .btn-zoom {
+      background: #2d8cff;
+      color: #fff;
+      padding: 10px 14px;
+      width: 100%;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: var(--r);
+      border: none;
+      cursor: pointer;
+      transition: .12s;
+    }
+
+    .btn-zoom:hover:not(:disabled) {
+      background: #1a73e8;
+    }
+
+    #zoom-auth-prompt {
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      background: rgba(45, 140, 255, .08);
+      border: 1px solid rgba(45, 140, 255, .3);
+      border-radius: var(--r);
+      padding: 10px;
+      font-size: 12px;
+      color: var(--text);
+    }
+
+    #zoom-auth-prompt.show {
+      display: flex;
+    }
+
+    #zoom-auth-prompt p {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ── Rename popover ──────────────────────────────────── */
+    .btn-rename {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 11px;
+      padding: 0 4px;
+      opacity: 0;
+      transition: opacity .15s;
+      vertical-align: middle;
+      flex-shrink: 0;
+    }
+
+    tr:hover .btn-rename {
+      opacity: 1;
+    }
+
+    #rename-popover {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      background: var(--surface2);
+      border: 1px solid #2d8cff;
+      border-radius: 6px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, .45);
+      padding: 8px 10px;
+      min-width: 380px;
+      max-width: 600px;
+    }
+
+    #rename-popover.show {
+      display: block;
+    }
+
+    #rename-popover label {
+      display: block;
+      font-size: 10px;
+      color: var(--muted);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    #rename-inp {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      font-size: 13px;
+      padding: 5px 8px;
+      outline: none;
+      box-sizing: border-box;
+    }
+
+    #rename-inp:focus {
+      border-color: #2d8cff;
+    }
+
+    #rename-popover small {
+      display: block;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
   </style>
 </head>
+
 <body>
 
-<!-- Header -->
-<header>
-  <h1>🎙 Transcription Manager</h1>
-  <div class="spacer"></div>
-  <div class="status-pill">
-    <div class="dot" id="sdot"></div>
-    <span id="stxt">Connecting…</span>
-  </div>
-  <button class="btn-secondary" id="btn-settings">⚙ Settings</button>
-</header>
-
-<!-- Settings panel -->
-<div id="settings-panel">
-  <div class="sg">
-    <div class="frow">
-      <label>Service URL</label>
-      <input type="text" id="inp-url" placeholder="http://localhost:8000" />
+  <!-- Header -->
+  <header>
+    <h1>🎙 Transcription Manager</h1>
+    <div class="spacer"></div>
+    <div class="status-pill">
+      <div class="dot" id="sdot"></div>
+      <span id="stxt">Connecting…</span>
     </div>
-    <div class="frow">
-      <label>API Key</label>
-      <div class="field">
-        <input type="password" id="inp-key" placeholder="Leave empty if no auth" />
-        <button class="btn-secondary" id="btn-showkey">Show</button>
+    <button class="btn-secondary" id="btn-settings">⚙ Settings</button>
+  </header>
+
+  <!-- Settings panel -->
+  <div id="settings-panel">
+    <div class="sg">
+      <div class="frow">
+        <label>Service URL</label>
+        <input type="text" id="inp-url" placeholder="http://localhost:8000" />
+      </div>
+      <div class="frow">
+        <label>API Key</label>
+        <div class="field">
+          <input type="password" id="inp-key" placeholder="Leave empty if no auth" />
+          <button class="btn-secondary" id="btn-showkey">Show</button>
+        </div>
+      </div>
+      <div class="frow">
+        <label>Active Model <span style="color:var(--ok);font-size:10px">✓ = local cache</span></label>
+        <select id="sel-model"></select>
+      </div>
+      <div class="frow">
+        <label>Device</label>
+        <select id="sel-device">
+          <option value="auto">Auto-detect</option>
+          <option value="cpu">CPU</option>
+          <option value="cuda">GPU (CUDA)</option>
+        </select>
+      </div>
+      <div class="full" style="align-items:flex-end">
+        <button class="btn-secondary" id="btn-apply">Apply Model / Device</button>
+        <button class="btn-primary" id="btn-save">Save Settings</button>
       </div>
     </div>
-    <div class="frow">
-      <label>Active Model <span style="color:var(--ok);font-size:10px">✓ = local cache</span></label>
-      <select id="sel-model"></select>
-    </div>
-    <div class="frow">
-      <label>Device</label>
-      <select id="sel-device">
-        <option value="auto">Auto-detect</option>
-        <option value="cpu">CPU</option>
-        <option value="cuda">GPU (CUDA)</option>
-      </select>
-    </div>
-    <div class="full" style="align-items:flex-end">
-      <button class="btn-secondary" id="btn-apply">Apply Model / Device</button>
-      <button class="btn-primary" id="btn-save">Save Settings</button>
-    </div>
-  </div>
-</div>
-
-<!-- Main -->
-<main>
-
-  <!-- Upload sidebar -->
-  <div id="sidebar">
-    <h2>Upload</h2>
-
-    <div id="drop-zone">
-      <div class="dz-icon">🎵</div>
-      <div>Drop audio / video here</div>
-      <div class="dz-hint">or click to select a file</div>
-      <div class="dz-name" id="dz-name"></div>
-    </div>
-    <input type="file" id="file-inp"
-      accept=".mp3,.mp4,.m4a,.wav,.flac,.ogg,.opus,.webm,.weba,.mkv,.avi,.mov,.aac,.wma,.aiff,.aif"
-      hidden />
-
-    <div class="frow">
-      <label>Language</label>
-      <select id="sel-lang">
-        <option value="">Auto-detect</option>
-        <option value="en">English</option>
-        <option value="de">German</option>
-        <option value="fr">French</option>
-        <option value="es">Spanish</option>
-        <option value="it">Italian</option>
-        <option value="pt">Portuguese</option>
-        <option value="nl">Dutch</option>
-        <option value="pl">Polish</option>
-        <option value="ru">Russian</option>
-        <option value="zh">Chinese</option>
-        <option value="ja">Japanese</option>
-        <option value="ko">Korean</option>
-        <option value="ar">Arabic</option>
-        <option value="tr">Turkish</option>
-        <option value="he">Hebrew</option>
-        <option value="hi">Hindi</option>
-      </select>
-    </div>
-
-    <div class="frow">
-      <label>Task</label>
-      <select id="sel-task">
-        <option value="transcribe">Transcribe</option>
-        <option value="translate">Translate → English</option>
-      </select>
-    </div>
-
-    <div class="frow">
-      <label>Translate to</label>
-      <select id="sel-tlang">
-        <option value="">No translation</option>
-        <option value="he">Hebrew</option>
-        <option disabled>──────────</option>
-        <option value="ar">Arabic</option>
-        <option value="zh">Chinese (Simplified)</option>
-        <option value="cs">Czech</option>
-        <option value="da">Danish</option>
-        <option value="nl">Dutch</option>
-        <option value="en">English</option>
-        <option value="fi">Finnish</option>
-        <option value="fr">French</option>
-        <option value="de">German</option>
-        <option value="hi">Hindi</option>
-        <option value="hu">Hungarian</option>
-        <option value="id">Indonesian</option>
-        <option value="it">Italian</option>
-        <option value="ja">Japanese</option>
-        <option value="ko">Korean</option>
-        <option value="no">Norwegian</option>
-        <option value="pl">Polish</option>
-        <option value="pt">Portuguese</option>
-        <option value="ro">Romanian</option>
-        <option value="ru">Russian</option>
-        <option value="es">Spanish</option>
-        <option value="sv">Swedish</option>
-        <option value="tr">Turkish</option>
-        <option value="uk">Ukrainian</option>
-      </select>
-    </div>
-
-    <label class="cb">
-      <input type="checkbox" id="chk-words" />
-      Word-level timestamps
-    </label>
-
-    <button class="btn-primary" id="btn-transcribe" style="width:100%;padding:10px;margin-top:2px">
-      Transcribe
-    </button>
-
-    <!-- YouTube section -->
-    <div class="yt-section">
-      <div class="yt-label"><span class="yt-icon">▶</span> YouTube</div>
-      <input type="text" id="inp-yt-url" placeholder="https://youtube.com/watch?v=..." />
-      <button class="btn-yt" id="btn-yt">Transcribe YouTube</button>
-    </div>
   </div>
 
-  <!-- Jobs area -->
-  <div id="jobs-area">
-    <div class="tabs-bar">
-      <button class="tab active" data-tab="files"   id="tab-files">Audio Files</button>
-      <button class="tab"        data-tab="results" id="tab-results">Transcriptions</button>
-    </div>
-    <div id="jobs-scroll">
-      <div class="empty" id="empty-state">
-        <div class="ei">📂</div>
-        <p>No files yet — upload an audio file to get started.</p>
+  <!-- Main -->
+  <main>
+
+    <!-- Upload sidebar -->
+    <div id="sidebar">
+      <h2>Upload</h2>
+
+      <div id="drop-zone">
+        <div class="dz-icon">🎵</div>
+        <div>Drop audio / video here</div>
+        <div class="dz-hint">or click to select a file</div>
+        <div class="dz-name" id="dz-name"></div>
       </div>
-      <table class="jt" id="jt" style="display:none">
-        <thead id="jt-head"></thead>
-        <tbody id="jt-body"></tbody>
-      </table>
+      <input type="file" id="file-inp"
+        accept=".mp3,.mp4,.m4a,.wav,.flac,.ogg,.opus,.webm,.weba,.mkv,.avi,.mov,.aac,.wma,.aiff,.aif" hidden />
+
+      <div class="frow">
+        <label>Language</label>
+        <select id="sel-lang">
+          <option value="">Auto-detect</option>
+          <option value="en">English</option>
+          <option value="de">German</option>
+          <option value="fr">French</option>
+          <option value="es">Spanish</option>
+          <option value="it">Italian</option>
+          <option value="pt">Portuguese</option>
+          <option value="nl">Dutch</option>
+          <option value="pl">Polish</option>
+          <option value="ru">Russian</option>
+          <option value="zh">Chinese</option>
+          <option value="ja">Japanese</option>
+          <option value="ko">Korean</option>
+          <option value="ar">Arabic</option>
+          <option value="tr">Turkish</option>
+          <option value="he">Hebrew</option>
+          <option value="hi">Hindi</option>
+        </select>
+      </div>
+
+      <div class="frow">
+        <label>Task</label>
+        <select id="sel-task">
+          <option value="transcribe">Transcribe</option>
+          <option value="translate">Translate → English</option>
+        </select>
+      </div>
+
+      <div class="frow">
+        <label>Translate to</label>
+        <select id="sel-tlang">
+          <option value="">No translation</option>
+          <option value="he">Hebrew</option>
+          <option disabled>──────────</option>
+          <option value="ar">Arabic</option>
+          <option value="zh">Chinese (Simplified)</option>
+          <option value="cs">Czech</option>
+          <option value="da">Danish</option>
+          <option value="nl">Dutch</option>
+          <option value="en">English</option>
+          <option value="fi">Finnish</option>
+          <option value="fr">French</option>
+          <option value="de">German</option>
+          <option value="hi">Hindi</option>
+          <option value="hu">Hungarian</option>
+          <option value="id">Indonesian</option>
+          <option value="it">Italian</option>
+          <option value="ja">Japanese</option>
+          <option value="ko">Korean</option>
+          <option value="no">Norwegian</option>
+          <option value="pl">Polish</option>
+          <option value="pt">Portuguese</option>
+          <option value="ro">Romanian</option>
+          <option value="ru">Russian</option>
+          <option value="es">Spanish</option>
+          <option value="sv">Swedish</option>
+          <option value="tr">Turkish</option>
+          <option value="uk">Ukrainian</option>
+        </select>
+      </div>
+
+      <label class="cb">
+        <input type="checkbox" id="chk-words" />
+        Word-level timestamps
+      </label>
+
+      <button class="btn-primary" id="btn-transcribe" style="width:100%;padding:10px;margin-top:2px">
+        Transcribe
+      </button>
+
+      <!-- YouTube section -->
+      <div class="yt-section">
+        <div class="yt-label"><span class="yt-icon">▶</span> YouTube</div>
+        <input type="text" id="inp-yt-url" placeholder="https://youtube.com/watch?v=..." />
+        <button class="btn-yt" id="btn-yt">Transcribe YouTube</button>
+      </div>
+
+      <!-- Zoom section -->
+      <div class="yt-section">
+        <div class="yt-label"><span class="yt-icon">🎥</span> Zoom Recording</div>
+        <input type="text" id="inp-zoom-url" placeholder="https://zoom.us/rec/play/..." />
+        <input type="password" id="inp-zoom-pass" placeholder="Passcode (optional)" style="margin-top:4px" />
+        <button class="btn-zoom" id="btn-zoom">Transcribe Zoom</button>
+
+        <div id="zoom-auth-prompt" style="margin-top:8px">
+          <strong>Auth Required</strong>
+          <p>This recording requires a Zoom login. Sign in in your browser, then come back and retry.</p>
+          <button class="btn-zoom" id="btn-zoom-signin">Open Zoom Sign-In</button>
+          <button class="btn-secondary" id="btn-zoom-retry" style="width:100%;margin-top:4px">I've Signed In —
+            Retry</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Jobs area -->
+    <div id="jobs-area">
+      <div class="tabs-bar">
+        <button class="tab active" data-tab="files" id="tab-files">Audio Files</button>
+        <button class="tab" data-tab="results" id="tab-results">Transcriptions</button>
+      </div>
+      <div id="jobs-scroll">
+        <div class="empty" id="empty-state">
+          <div class="ei">📂</div>
+          <p>No files yet — upload an audio file to get started.</p>
+        </div>
+        <table class="jt" id="jt" style="display:none">
+          <thead id="jt-head"></thead>
+          <tbody id="jt-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Transcript modal -->
+  <div id="overlay">
+    <div id="modal">
+      <div class="mh">
+        <h2 id="m-title">Transcript</h2>
+        <button class="btn-secondary" id="btn-copy">Copy text</button>
+        <button class="btn-ghost btn-icon" id="btn-close">✕</button>
+      </div>
+      <div class="mmeta" id="m-meta"></div>
+      <div class="mb">
+        <div id="segs-list"></div>
+      </div>
     </div>
   </div>
 
-</main>
+  <!-- Toasts -->
+  <div id="toasts"></div>
 
-<!-- Transcript modal -->
-<div id="overlay">
-  <div id="modal">
-    <div class="mh">
-      <h2 id="m-title">Transcript</h2>
-      <button class="btn-secondary" id="btn-copy">Copy text</button>
-      <button class="btn-ghost btn-icon" id="btn-close">✕</button>
-    </div>
-    <div class="mmeta" id="m-meta"></div>
-    <div class="mb">
-      <div id="segs-list"></div>
-    </div>
-  </div>
-</div>
+  <script>
+    'use strict';
 
-<!-- Toasts -->
-<div id="toasts"></div>
-
-<script>
-'use strict';
-
-// ── State ─────────────────────────────────────────────────────────────────────
-const S = {
-  url:    'http://localhost:8000',
-  key:    '',
-  jobs:   [],
-  tab:    'files',
-  timer:  null,
-};
-
-// ── API ───────────────────────────────────────────────────────────────────────
-async function call(method, path, body, isForm) {
-  const headers = {};
-  if (S.key) headers['Authorization'] = `Bearer ${S.key}`;
-  if (!isForm && body) headers['Content-Type'] = 'application/json';
-  const res = await fetch(`${S.url}/api/v1${path}`, {
-    method,
-    headers,
-    body: isForm ? body : (body ? JSON.stringify(body) : undefined),
-  });
-  if (!res.ok) {
-    const e = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new Error(e.detail || res.statusText);
-  }
-  return res.status === 204 ? null : res.json();
-}
-
-// ── Settings ──────────────────────────────────────────────────────────────────
-function loadSettings() {
-  S.url = localStorage.getItem('ts_url') || 'http://localhost:8000';
-  S.key = localStorage.getItem('ts_key') || '';
-  $('inp-url').value = S.url;
-  $('inp-key').value = S.key;
-}
-
-function saveSettings() {
-  S.url = $('inp-url').value.trim().replace(/\/$/, '');
-  S.key = $('inp-key').value.trim();
-  localStorage.setItem('ts_url', S.url);
-  localStorage.setItem('ts_key', S.key);
-  toast('Settings saved');
-  checkHealth();
-  loadModels();
-}
-
-// ── Health ────────────────────────────────────────────────────────────────────
-async function checkHealth() {
-  const dot = $('sdot'), txt = $('stxt');
-  try {
-    const h = await call('GET', '/health');
-    dot.className = 'dot ok';
-    txt.textContent = `${h.model} · ${h.device}`;
-  } catch {
-    dot.className = 'dot err';
-    txt.textContent = 'Disconnected';
-  }
-}
-
-// ── Models ────────────────────────────────────────────────────────────────────
-async function loadModels() {
-  try {
-    const [models, cfg] = await Promise.all([call('GET', '/models'), call('GET', '/config')]);
-    const sel = $('sel-model');
-    sel.innerHTML = models.map(m =>
-      `<option value="${m.name}" ${m.local ? '' : 'class="dl"'}>${m.name}${m.local ? ' ✓' : ''}</option>`
-    ).join('');
-    sel.value = cfg.model_size;
-    // Set device dropdown to the actual running device (not settings.device which may be "auto")
-    const devSel = $('sel-device');
-    // Match the resolved device (cpu/cuda) or fall back to "auto"
-    if (cfg.device === 'cpu' || cfg.device === 'cuda') devSel.value = cfg.device;
-    else devSel.value = 'auto';
-  } catch { /* service not ready */ }
-}
-
-async function applyModel() {
-  const btn = $('btn-apply');
-  btn.textContent = 'Loading…';
-  btn.disabled = true;
-  try {
-    const body = {
-      model_size: $('sel-model').value,
-      device: $('sel-device').value,
+    // ── State ─────────────────────────────────────────────────────────────────────
+    const S = {
+      url: 'http://localhost:8000',
+      key: '',
+      jobs: [],
+      tab: 'files',
+      timer: null,
     };
-    const result = await call('PATCH', '/config', body);
-    await checkHealth();
-    toast(`Switched to ${result.model_size} on ${result.device}`);
-  } catch (e) {
-    toast(e.message, 'err');
-  } finally {
-    btn.textContent = 'Apply Model / Device';
-    btn.disabled = false;
-  }
-}
 
-// ── Upload ────────────────────────────────────────────────────────────────────
-function initDrop() {
-  const zone = $('drop-zone'), inp = $('file-inp');
-  zone.addEventListener('click', () => inp.click());
-  inp.addEventListener('change', () => setFile(inp.files[0]));
-  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('over'); });
-  zone.addEventListener('dragleave', () => zone.classList.remove('over'));
-  zone.addEventListener('drop', e => {
-    e.preventDefault();
-    zone.classList.remove('over');
-    const f = e.dataTransfer.files[0];
-    if (f) { inp.files = e.dataTransfer.files; setFile(f); }
-  });
-}
-
-function setFile(f) {
-  $('dz-name').textContent = f ? f.name : '';
-}
-
-async function transcribe() {
-  const inp = $('file-inp');
-  if (!inp.files[0]) { toast('Select a file first', 'err'); return; }
-
-  const form = new FormData();
-  form.append('file', inp.files[0]);
-  const lang = $('sel-lang').value;
-  if (lang) form.append('language', lang);
-  form.append('task',            $('sel-task').value);
-  form.append('word_timestamps', $('chk-words').checked ? 'true' : 'false');
-  form.append('vad_filter',      'true');
-  const tlang = $('sel-tlang').value;
-  if (tlang) form.append('translation_lang', tlang);
-
-  const btn = $('btn-transcribe');
-  btn.textContent = 'Uploading…';
-  btn.disabled = true;
-
-  try {
-    const headers = S.key ? { Authorization: `Bearer ${S.key}` } : {};
-    const res = await fetch(`${S.url}/api/v1/jobs/file`, { method: 'POST', headers, body: form });
-    if (!res.ok) {
-      const e = await res.json().catch(() => ({ detail: res.statusText }));
-      throw new Error(e.detail || res.statusText);
+    // ── API ───────────────────────────────────────────────────────────────────────
+    async function call(method, path, body, isForm) {
+      const headers = {};
+      if (S.key) headers['Authorization'] = `Bearer ${S.key}`;
+      if (!isForm && body) headers['Content-Type'] = 'application/json';
+      const res = await fetch(`${S.url}/api/v1${path}`, {
+        method,
+        headers,
+        body: isForm ? body : (body ? JSON.stringify(body) : undefined),
+      });
+      if (!res.ok) {
+        const e = await res.json().catch(() => ({ detail: res.statusText }));
+        throw new Error(e.detail || res.statusText);
+      }
+      return res.status === 204 ? null : res.json();
     }
-    const job = await res.json();
-    toast(`Job #${job.job_id} queued — transcribing…`);
-    inp.value = '';
-    setFile(null);
-    await refresh();
-    poll();
-  } catch (e) {
-    toast(e.message, 'err');
-  } finally {
-    btn.textContent = 'Transcribe';
-    btn.disabled = false;
-  }
-}
 
-// ── YouTube ───────────────────────────────────────────────────────────────────
-async function transcribeYoutube() {
-  const url = $('inp-yt-url').value.trim();
-  if (!url) { toast('Paste a YouTube URL first', 'err'); return; }
-
-  const body = {
-    url,
-    language:                $('sel-lang').value  || null,
-    task:                    $('sel-task').value,
-    word_timestamps:          $('chk-words').checked,
-    vad_filter:              true,
-    beam_size:               5,
-    temperature:             0.0,
-    condition_on_previous_text: true,
-  };
-  const tlang = $('sel-tlang').value;
-  if (tlang) body.translation_lang = tlang;
-
-  const btn = $('btn-yt');
-  btn.textContent = 'Downloading…';
-  btn.disabled = true;
-
-  try {
-    const headers = { 'Content-Type': 'application/json' };
-    if (S.key) headers['Authorization'] = `Bearer ${S.key}`;
-    const res = await fetch(`${S.url}/api/v1/jobs/url`, {
-      method: 'POST', headers, body: JSON.stringify(body),
-    });
-    if (!res.ok) {
-      const e = await res.json().catch(() => ({ detail: res.statusText }));
-      throw new Error(e.detail || res.statusText);
+    // ── Settings ──────────────────────────────────────────────────────────────────
+    function loadSettings() {
+      S.url = localStorage.getItem('ts_url') || 'http://localhost:8000';
+      S.key = localStorage.getItem('ts_key') || '';
+      $('inp-url').value = S.url;
+      $('inp-key').value = S.key;
     }
-    const job = await res.json();
-    toast(`Job #${job.job_id} queued — downloading & transcribing…`);
-    $('inp-yt-url').value = '';
-    await refresh();
-    poll();
-  } catch (e) {
-    toast(e.message, 'err');
-  } finally {
-    btn.textContent = 'Transcribe YouTube';
-    btn.disabled = false;
-  }
-}
 
-// ── Jobs ──────────────────────────────────────────────────────────────────────
-async function refresh() {
-  try {
-    S.jobs = await call('GET', '/jobs');
-    render();
-    if (S.jobs.some(j => j.status === 'processing')) poll();
-    else unpoll();
-  } catch { /* silent */ }
-}
+    function saveSettings() {
+      S.url = $('inp-url').value.trim().replace(/\/$/, '');
+      S.key = $('inp-key').value.trim();
+      localStorage.setItem('ts_url', S.url);
+      localStorage.setItem('ts_key', S.key);
+      toast('Settings saved');
+      checkHealth();
+      loadModels();
+    }
 
-function poll()   { if (!S.timer) S.timer = setInterval(refresh, 3000); }
-function unpoll() { if (S.timer) { clearInterval(S.timer); S.timer = null; } }
+    // ── Health ────────────────────────────────────────────────────────────────────
+    async function checkHealth() {
+      const dot = $('sdot'), txt = $('stxt');
+      try {
+        const h = await call('GET', '/health');
+        dot.className = 'dot ok';
+        txt.textContent = `${h.model} · ${h.device}`;
+      } catch {
+        dot.className = 'dot err';
+        txt.textContent = 'Disconnected';
+      }
+    }
 
-function render() {
-  const list = S.tab === 'results' ? S.jobs.filter(j => j.status === 'done') : S.jobs;
+    // ── Models ────────────────────────────────────────────────────────────────────
+    async function loadModels() {
+      try {
+        const [models, cfg] = await Promise.all([call('GET', '/models'), call('GET', '/config')]);
+        const sel = $('sel-model');
+        sel.innerHTML = models.map(m =>
+          `<option value="${m.name}" ${m.local ? '' : 'class="dl"'}>${m.name}${m.local ? ' ✓' : ''}</option>`
+        ).join('');
+        sel.value = cfg.model_size;
+        // Set device dropdown to the actual running device (not settings.device which may be "auto")
+        const devSel = $('sel-device');
+        // Match the resolved device (cpu/cuda) or fall back to "auto"
+        if (cfg.device === 'cpu' || cfg.device === 'cuda') devSel.value = cfg.device;
+        else devSel.value = 'auto';
+      } catch { /* service not ready */ }
+    }
 
-  // Update tab labels
-  const all  = S.jobs.length;
-  const done = S.jobs.filter(j => j.status === 'done').length;
-  $('tab-files').textContent   = `Audio Files (${all})`;
-  $('tab-results').textContent = `Transcriptions (${done})`;
+    async function applyModel() {
+      const btn = $('btn-apply');
+      btn.textContent = 'Loading…';
+      btn.disabled = true;
+      try {
+        const body = {
+          model_size: $('sel-model').value,
+          device: $('sel-device').value,
+        };
+        const result = await call('PATCH', '/config', body);
+        await checkHealth();
+        toast(`Switched to ${result.model_size} on ${result.device}`);
+      } catch (e) {
+        toast(e.message, 'err');
+      } finally {
+        btn.textContent = 'Apply Model / Device';
+        btn.disabled = false;
+      }
+    }
 
-  const empty = $('empty-state'), tbl = $('jt');
-  if (!list.length) { empty.style.display = ''; tbl.style.display = 'none'; return; }
-  empty.style.display = 'none'; tbl.style.display = '';
+    // ── Upload ────────────────────────────────────────────────────────────────────
+    function initDrop() {
+      const zone = $('drop-zone'), inp = $('file-inp');
+      zone.addEventListener('click', () => inp.click());
+      inp.addEventListener('change', () => setFile(inp.files[0]));
+      zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('over'); });
+      zone.addEventListener('dragleave', () => zone.classList.remove('over'));
+      zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('over');
+        const f = e.dataTransfer.files[0];
+        if (f) { inp.files = e.dataTransfer.files; setFile(f); }
+      });
+    }
 
-  if (S.tab === 'files') {
-    $('jt-head').innerHTML = `<tr>
+    function setFile(f) {
+      $('dz-name').textContent = f ? f.name : '';
+    }
+
+    async function transcribe() {
+      const inp = $('file-inp');
+      if (!inp.files[0]) { toast('Select a file first', 'err'); return; }
+
+      const form = new FormData();
+      form.append('file', inp.files[0]);
+      const lang = $('sel-lang').value;
+      if (lang) form.append('language', lang);
+      form.append('task', $('sel-task').value);
+      form.append('word_timestamps', $('chk-words').checked ? 'true' : 'false');
+      form.append('vad_filter', 'true');
+      const tlang = $('sel-tlang').value;
+      if (tlang) form.append('translation_lang', tlang);
+
+      const btn = $('btn-transcribe');
+      btn.textContent = 'Uploading…';
+      btn.disabled = true;
+
+      try {
+        const headers = S.key ? { Authorization: `Bearer ${S.key}` } : {};
+        const res = await fetch(`${S.url}/api/v1/jobs/file`, { method: 'POST', headers, body: form });
+        if (!res.ok) {
+          const e = await res.json().catch(() => ({ detail: res.statusText }));
+          throw new Error(e.detail || res.statusText);
+        }
+        const job = await res.json();
+        toast(`Job #${job.job_id} queued — transcribing…`);
+        inp.value = '';
+        setFile(null);
+        await refresh();
+        poll();
+      } catch (e) {
+        toast(e.message, 'err');
+      } finally {
+        btn.textContent = 'Transcribe';
+        btn.disabled = false;
+      }
+    }
+
+    // ── YouTube ───────────────────────────────────────────────────────────────────
+    async function transcribeYoutube() {
+      const url = $('inp-yt-url').value.trim();
+      if (!url) { toast('Paste a YouTube URL first', 'err'); return; }
+
+      const body = {
+        url,
+        language: $('sel-lang').value || null,
+        task: $('sel-task').value,
+        word_timestamps: $('chk-words').checked,
+        vad_filter: true,
+        beam_size: 5,
+        temperature: 0.0,
+        condition_on_previous_text: true,
+      };
+      const tlang = $('sel-tlang').value;
+      if (tlang) body.translation_lang = tlang;
+
+      const btn = $('btn-yt');
+      btn.textContent = 'Downloading…';
+      btn.disabled = true;
+
+      try {
+        const headers = { 'Content-Type': 'application/json' };
+        if (S.key) headers['Authorization'] = `Bearer ${S.key}`;
+        const res = await fetch(`${S.url}/api/v1/jobs/url`, {
+          method: 'POST', headers, body: JSON.stringify(body),
+        });
+        if (!res.ok) {
+          const e = await res.json().catch(() => ({ detail: res.statusText }));
+          throw new Error(e.detail || res.statusText);
+        }
+        const job = await res.json();
+        toast(`Job #${job.job_id} queued — downloading & transcribing…`);
+        $('inp-yt-url').value = '';
+        await refresh();
+        poll();
+      } catch (e) {
+        toast(e.message, 'err');
+      } finally {
+        btn.textContent = 'Transcribe YouTube';
+        btn.disabled = false;
+      }
+    }
+
+    // ── Zoom ──────────────────────────────────────────────────────────────────────
+    async function transcribeZoom() {
+      const url = $('inp-zoom-url').value.trim();
+      const pass = $('inp-zoom-pass').value.trim();
+      if (!url) { toast('Paste a Zoom URL first', 'err'); return; }
+
+      const body = {
+        url,
+        passcode: pass || null,
+        language: $('sel-lang').value || null,
+        task: $('sel-task').value,
+        word_timestamps: $('chk-words').checked,
+        vad_filter: true,
+      };
+      const tlang = $('sel-tlang').value;
+      if (tlang) body.translation_lang = tlang;
+
+      const btn = $('btn-zoom');
+      btn.textContent = 'Processing…';
+      btn.disabled = true;
+      $('zoom-auth-prompt').classList.remove('show');
+
+      try {
+        const headers = { 'Content-Type': 'application/json' };
+        if (S.key) headers['Authorization'] = `Bearer ${S.key}`;
+        const res = await fetch(`${S.url}/api/v1/jobs/url`, {
+          method: 'POST', headers, body: JSON.stringify(body),
+        });
+        if (!res.ok) {
+          const e = await res.json().catch(() => ({ detail: res.statusText }));
+          if (res.status === 401 && e.detail === 'zoom_auth_required') {
+            $('zoom-auth-prompt').classList.add('show');
+            throw new Error('Authentication needed for this Zoom recording');
+          }
+          throw new Error(e.detail || res.statusText);
+        }
+        const job = await res.json();
+        toast(`Job #${job.job_id} queued — starting Zoom download…`);
+        $('inp-zoom-url').value = '';
+        $('inp-zoom-pass').value = '';
+        await refresh();
+        poll();
+      } catch (e) {
+        toast(e.message, 'err');
+      } finally {
+        btn.textContent = 'Transcribe Zoom';
+        btn.disabled = false;
+      }
+    }
+
+    // ── Rename ────────────────────────────────────────────────────────────────────
+    let _renameState = null;
+
+    function startRename(id, currentName) {
+      const cell = document.querySelector(`[data-rename-id="${id}"]`);
+      const btn = cell.querySelector('.btn-rename');
+      const pop = $('rename-popover'), inp = $('rename-inp');
+
+      closeRenamePopover();
+
+      const anchor = btn || cell;
+      const rect = anchor.getBoundingClientRect();
+      const cellRect = cell.getBoundingClientRect();
+
+      const left = Math.min(cellRect.left, window.innerWidth - 420);
+      pop.style.top = (rect.bottom + 6) + 'px';
+      pop.style.left = Math.max(8, left) + 'px';
+      pop.classList.add('show');
+
+      inp.value = currentName;
+      inp.focus();
+      inp.select();
+
+      _renameState = { id, currentName };
+    }
+
+    function closeRenamePopover() {
+      $('rename-popover').classList.remove('show');
+      _renameState = null;
+    }
+
+    async function saveRename() {
+      if (!_renameState) return;
+      const { id, currentName } = _renameState;
+      const name = $('rename-inp').value.trim();
+      closeRenamePopover();
+      if (!name || name === currentName) return;
+      try {
+        await call('PATCH', `/jobs/${id}`, { filename: name });
+        toast('Renamed', 'ok');
+        await refresh();
+      } catch (e) {
+        toast(e.message, 'err');
+      }
+    }
+
+    // ── Jobs ──────────────────────────────────────────────────────────────────────
+    async function refresh() {
+      try {
+        S.jobs = await call('GET', '/jobs');
+        render();
+        if (S.jobs.some(j => j.status === 'processing')) poll();
+        else unpoll();
+      } catch { /* silent */ }
+    }
+
+    function poll() { if (!S.timer) S.timer = setInterval(refresh, 3000); }
+    function unpoll() { if (S.timer) { clearInterval(S.timer); S.timer = null; } }
+
+    function render() {
+      const list = S.tab === 'results' ? S.jobs.filter(j => j.status === 'done') : S.jobs;
+
+      // Update tab labels
+      const all = S.jobs.length;
+      const done = S.jobs.filter(j => j.status === 'done').length;
+      $('tab-files').textContent = `Audio Files (${all})`;
+      $('tab-results').textContent = `Transcriptions (${done})`;
+
+      const empty = $('empty-state'), tbl = $('jt');
+      if (!list.length) { empty.style.display = ''; tbl.style.display = 'none'; return; }
+      empty.style.display = 'none'; tbl.style.display = '';
+
+      if (S.tab === 'files') {
+        $('jt-head').innerHTML = `<tr>
       <th style="width:34%">File</th>
       <th>Language</th>
       <th>Duration</th>
       <th>Status</th>
       <th style="width:90px">Actions</th>
     </tr>`;
-    $('jt-body').innerHTML = list.map(j => `<tr>
-      <td class="cell-file" title="${esc(j.filename)}">${esc(j.filename)}</td>
-      <td>${j.lang_det || j.lang_req || '—'}</td>
-      <td>${j.duration ? dur(j.duration) : '—'}</td>
-      ${progressCell(j)}
-      <td style="white-space:nowrap">
-        ${j.file_path ? `<button class="btn-ghost btn-icon" onclick="playAudio(${j.id})" title="Open audio">▶</button>` : ''}
-        <button class="btn-del btn-icon" onclick="del(${j.id})" title="Delete">🗑</button>
-      </td>
-    </tr>`).join('');
-  } else {
-    $('jt-head').innerHTML = `<tr>
+        $('jt-body').innerHTML = list.map(j => `<tr>
+        <td class="cell-file" data-rename-id="${j.id}" title="${esc(j.filename)}">
+          <div class="cell-file-inner">
+            <span>${esc(j.filename)}</span>
+            <button class="btn-rename" onclick="startRename(${j.id}, this.dataset.filename)" data-filename="${esc(j.filename)}" title="Rename">✏️</button>
+          </div>
+        </td>
+        <td>${j.lang_det || j.lang_req || '—'}</td>
+        <td>${j.duration ? dur(j.duration) : '—'}</td>
+        ${progressCell(j)}
+        <td style="white-space:nowrap">
+          ${j.file_path ? `<button class="btn-ghost btn-icon" onclick="playAudio(${j.id})" title="Open audio">▶</button>` : ''}
+          <button class="btn-del btn-icon" onclick="del(${j.id})" title="Delete">🗑</button>
+        </td>
+      </tr>`).join('');
+      } else {
+        $('jt-head').innerHTML = `<tr>
       <th style="width:22%">File</th>
       <th style="width:7%">Lang</th>
       <th style="width:8%">Duration</th>
       <th>Transcript preview</th>
       <th style="width:70px"></th>
     </tr>`;
-    $('jt-body').innerHTML = list.map(j => `<tr>
-      <td class="cell-file" title="${esc(j.filename)}">${esc(j.filename)}</td>
-      <td>${j.lang_det || '—'}</td>
-      <td>${j.duration ? dur(j.duration) : '—'}</td>
-      <td class="cell-prev">${esc((j.full_text || '').slice(0, 130))}${(j.full_text || '').length > 130 ? '…' : ''}</td>
-      <td><button class="btn-ghost" onclick="view(${j.id})">View</button></td>
-    </tr>`).join('');
-  }
-}
+        $('jt-body').innerHTML = list.map(j => `<tr>
+        <td class="cell-file" data-rename-id="${j.id}" title="${esc(j.filename)}">
+          <div class="cell-file-inner">
+            <span>${esc(j.filename)}</span>
+            <button class="btn-rename" onclick="startRename(${j.id}, this.dataset.filename)" data-filename="${esc(j.filename)}" title="Rename">✏️</button>
+          </div>
+        </td>
+        <td>${j.lang_det || '—'}</td>
+        <td>${j.duration ? dur(j.duration) : '—'}</td>
+        <td class="cell-prev">${esc((j.full_text || '').slice(0, 130))}${(j.full_text || '').length > 130 ? '…' : ''}</td>
+        <td><button class="btn-ghost" onclick="view(${j.id})">View</button></td>
+      </tr>`).join('');
+      }
+    }
 
-async function del(id) {
-  if (!confirm('Delete this job and its audio file?')) return;
-  try { await call('DELETE', `/jobs/${id}`); toast('Deleted'); await refresh(); }
-  catch (e) { toast(e.message, 'err'); }
-}
+    async function del(id) {
+      if (!confirm('Delete this job and its audio file?')) return;
+      try { await call('DELETE', `/jobs/${id}`); toast('Deleted'); await refresh(); }
+      catch (e) { toast(e.message, 'err'); }
+    }
 
-function playAudio(id) {
-  window.open(`${S.url}/api/v1/audio/${id}`, '_blank');
-}
+    function playAudio(id) {
+      window.open(`${S.url}/api/v1/audio/${id}`, '_blank');
+    }
 
-// ── Modal ─────────────────────────────────────────────────────────────────────
-async function view(id) {
-  try {
-    const j = await call('GET', `/jobs/${id}`);
-    $('m-title').textContent = j.filename;
-    $('m-meta').innerHTML = [
-      `<div class="mi">Language <span>${j.lang_det || '—'}</span></div>`,
-      `<div class="mi">Duration <span>${j.duration ? dur(j.duration) : '—'}</span></div>`,
-      `<div class="mi">Model <span>${j.model || '—'}</span></div>`,
-      `<div class="mi">Confidence <span>${j.lang_prob != null ? Math.round(j.lang_prob * 100) + '%' : '—'}</span></div>`,
-    ].join('');
+    // ── Modal ─────────────────────────────────────────────────────────────────────
+    async function view(id) {
+      try {
+        const j = await call('GET', `/jobs/${id}`);
+        $('m-title').textContent = j.filename;
+        $('m-meta').innerHTML = [
+          `<div class="mi">Language <span>${j.lang_det || '—'}</span></div>`,
+          `<div class="mi">Duration <span>${j.duration ? dur(j.duration) : '—'}</span></div>`,
+          `<div class="mi">Model <span>${j.model || '—'}</span></div>`,
+          `<div class="mi">Confidence <span>${j.lang_prob != null ? Math.round(j.lang_prob * 100) + '%' : '—'}</span></div>`,
+        ].join('');
 
-    const text = j.full_text || '';
-    const copyText = j.translated_text
-      ? `${text}\n\n--- Translation (${j.translation_lang || ''}) ---\n${j.translated_text}`
-      : text;
-    $('btn-copy').onclick = () => navigator.clipboard.writeText(copyText).then(() => toast('Copied!'));
+        const text = j.full_text || '';
+        const copyText = j.translated_text
+          ? `${text}\n\n--- Translation (${j.translation_lang || ''}) ---\n${j.translated_text}`
+          : text;
+        $('btn-copy').onclick = () => navigator.clipboard.writeText(copyText).then(() => toast('Copied!'));
 
-    let segs = [];
-    try { segs = JSON.parse(j.segments || '[]'); } catch {}
+        let segs = [];
+        try { segs = JSON.parse(j.segments || '[]'); } catch { }
 
-    let html = '';
-    if (segs.length) {
-      html = segs.map(s =>
-        `<div class="seg-row">
+        let html = '';
+        if (segs.length) {
+          html = segs.map(s =>
+            `<div class="seg-row">
           <div class="seg-ts">${ts(s.start)}</div>
           <div>${esc(s.text)}</div>
         </div>`
-      ).join('');
-    } else {
-      html = `<div style="padding:8px 10px;line-height:1.75;white-space:pre-wrap;word-break:break-word">${esc(text)}</div>`;
-    }
+          ).join('');
+        } else {
+          html = `<div style="padding:8px 10px;line-height:1.75;white-space:pre-wrap;word-break:break-word">${esc(text)}</div>`;
+        }
 
-    if (j.translated_segments || j.translated_text) {
-      const langNames = {'he':'Hebrew','ar':'Arabic','zh':'Chinese','de':'German','fr':'French','es':'Spanish','ru':'Russian','ja':'Japanese','ko':'Korean','pt':'Portuguese','it':'Italian','nl':'Dutch','pl':'Polish','tr':'Turkish','hi':'Hindi','sv':'Swedish','da':'Danish','fi':'Finnish','no':'Norwegian','uk':'Ukrainian','cs':'Czech','ro':'Romanian','hu':'Hungarian','id':'Indonesian','en':'English'};
-      const label = langNames[j.translation_lang] || (j.translation_lang || '').toUpperCase();
-      let tsegs = [];
-      try { tsegs = JSON.parse(j.translated_segments || '[]'); } catch {}
-      let tbody;
-      if (tsegs.length) {
-        tbody = tsegs.map(s =>
-          `<div class="seg-row">
+        if (j.translated_segments || j.translated_text) {
+          const langNames = { 'he': 'Hebrew', 'ar': 'Arabic', 'zh': 'Chinese', 'de': 'German', 'fr': 'French', 'es': 'Spanish', 'ru': 'Russian', 'ja': 'Japanese', 'ko': 'Korean', 'pt': 'Portuguese', 'it': 'Italian', 'nl': 'Dutch', 'pl': 'Polish', 'tr': 'Turkish', 'hi': 'Hindi', 'sv': 'Swedish', 'da': 'Danish', 'fi': 'Finnish', 'no': 'Norwegian', 'uk': 'Ukrainian', 'cs': 'Czech', 'ro': 'Romanian', 'hu': 'Hungarian', 'id': 'Indonesian', 'en': 'English' };
+          const label = langNames[j.translation_lang] || (j.translation_lang || '').toUpperCase();
+          let tsegs = [];
+          try { tsegs = JSON.parse(j.translated_segments || '[]'); } catch { }
+          let tbody;
+          if (tsegs.length) {
+            tbody = tsegs.map(s =>
+              `<div class="seg-row">
             <div class="seg-ts">${ts(s.start)}</div>
             <div style="direction:auto;unicode-bidi:plaintext">${esc(s.text)}</div>
           </div>`
-        ).join('');
-      } else {
-        tbody = `<div class="transl-text">${esc(j.translated_text || '')}</div>`;
-      }
-      html += `<div class="transl-block">
+            ).join('');
+          } else {
+            tbody = `<div class="transl-text">${esc(j.translated_text || '')}</div>`;
+          }
+          html += `<div class="transl-block">
         <div class="transl-header">Translation <span class="transl-badge">${esc(label)}</span></div>
         ${tbody}
       </div>`;
+        }
+
+        $('segs-list').innerHTML = html;
+        $('overlay').classList.add('open');
+      } catch (e) { toast(e.message, 'err'); }
     }
 
-    $('segs-list').innerHTML = html;
-    $('overlay').classList.add('open');
-  } catch (e) { toast(e.message, 'err'); }
-}
+    // ── Helpers ───────────────────────────────────────────────────────────────────
+    const $ = id => document.getElementById(id);
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-const $ = id => document.getElementById(id);
+    function esc(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
 
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+    function dur(s) {
+      const m = Math.floor(s / 60), sec = Math.floor(s % 60);
+      return `${m}:${String(sec).padStart(2, '0')}`;
+    }
 
-function dur(s) {
-  const m = Math.floor(s / 60), sec = Math.floor(s % 60);
-  return `${m}:${String(sec).padStart(2,'0')}`;
-}
+    function ts(s) {
+      const m = Math.floor(s / 60), sec = (s % 60).toFixed(1);
+      return `${m}:${String(Math.floor(s % 60)).padStart(2, '0')}.${Math.round((s % 1) * 10)}`;
+    }
 
-function ts(s) {
-  const m = Math.floor(s / 60), sec = (s % 60).toFixed(1);
-  return `${m}:${String(Math.floor(s % 60)).padStart(2,'0')}.${Math.round((s % 1) * 10)}`;
-}
+    function badge(status) {
+      const map = {
+        done: `<span class="badge b-done"><span class="bdot"></span>Done</span>`,
+        error: `<span class="badge b-err"><span class="bdot"></span>Error</span>`,
+      };
+      return map[status] || status;
+    }
 
-function badge(status) {
-  const map = {
-    done:  `<span class="badge b-done"><span class="bdot"></span>Done</span>`,
-    error: `<span class="badge b-err"><span class="bdot"></span>Error</span>`,
-  };
-  return map[status] || status;
-}
-
-function progressCell(job) {
-  if (job.status !== 'processing') return `<td>${badge(job.status)}</td>`;
-  const pct = job.progress || 0;
-  if (pct === 0) {
-    return `<td class="prog-cell"><span class="badge b-proc"><span class="bdot"></span>Preparing…</span></td>`;
-  }
-  return `<td class="prog-cell">
+    function progressCell(job) {
+      if (job.status !== 'processing') return `<td>${badge(job.status)}</td>`;
+      const pct = job.progress || 0;
+      if (pct === 0) {
+        return `<td class="prog-cell"><span class="badge b-proc"><span class="bdot"></span>Preparing…</span></td>`;
+      }
+      return `<td class="prog-cell">
     <div class="prog-wrap">
       <div class="prog-track"><div class="prog-fill" style="width:${pct}%"></div></div>
       <span class="prog-pct">${pct}%</span>
     </div>
   </td>`;
-}
+    }
 
-function toast(msg, type = 'ok') {
-  const el = document.createElement('div');
-  el.className = `toast ${type}`;
-  el.textContent = msg;
-  $('toasts').appendChild(el);
-  setTimeout(() => el.remove(), 3800);
-}
+    function toast(msg, type = 'ok') {
+      const el = document.createElement('div');
+      el.className = `toast ${type}`;
+      el.textContent = msg;
+      $('toasts').appendChild(el);
+      setTimeout(() => el.remove(), 3800);
+    }
 
-// ── Wire-up ───────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', async () => {
-  loadSettings();
-  initDrop();
+    // ── Wire-up ───────────────────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', async () => {
+      loadSettings();
+      initDrop();
 
-  $('btn-settings').addEventListener('click', () =>
-    $('settings-panel').classList.toggle('open')
-  );
-  $('btn-showkey').addEventListener('click', () => {
-    const i = $('inp-key');
-    i.type = i.type === 'password' ? 'text' : 'password';
-    $('btn-showkey').textContent = i.type === 'password' ? 'Show' : 'Hide';
-  });
-  $('btn-save').addEventListener('click', saveSettings);
-  $('btn-apply').addEventListener('click', applyModel);
-  $('btn-transcribe').addEventListener('click', transcribe);
-  $('btn-yt').addEventListener('click', transcribeYoutube);
-  $('inp-yt-url').addEventListener('keydown', e => { if (e.key === 'Enter') transcribeYoutube(); });
+      $('btn-settings').addEventListener('click', () =>
+        $('settings-panel').classList.toggle('open')
+      );
+      $('btn-showkey').addEventListener('click', () => {
+        const i = $('inp-key');
+        i.type = i.type === 'password' ? 'text' : 'password';
+        $('btn-showkey').textContent = i.type === 'password' ? 'Show' : 'Hide';
+      });
+      $('btn-save').addEventListener('click', saveSettings);
+      $('btn-apply').addEventListener('click', applyModel);
+      $('btn-transcribe').addEventListener('click', transcribe);
+      $('btn-yt').addEventListener('click', transcribeYoutube);
+      $('inp-yt-url').addEventListener('keydown', e => { if (e.key === 'Enter') transcribeYoutube(); });
 
-  document.querySelectorAll('.tab').forEach(btn =>
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      S.tab = btn.dataset.tab;
-      render();
-    })
-  );
+      $('btn-zoom').addEventListener('click', transcribeZoom);
+      $('inp-zoom-url').addEventListener('keydown', e => { if (e.key === 'Enter') transcribeZoom(); });
+      $('btn-zoom-signin').addEventListener('click', async () => {
+        const recUrl = $('inp-zoom-url').value.trim();
+        const params = recUrl ? `?url=${encodeURIComponent(recUrl)}` : '';
+        await call('GET', `/zoom/auth${params}`);
+        toast('Recording page opened — sign in, then click Retry', 'ok');
+      });
+      $('btn-zoom-retry').addEventListener('click', () => {
+        $('zoom-auth-prompt').classList.remove('show');
+        transcribeZoom();
+      });
 
-  $('btn-close').addEventListener('click', () => $('overlay').classList.remove('open'));
-  $('overlay').addEventListener('click', e => {
-    if (e.target === $('overlay')) $('overlay').classList.remove('open');
-  });
+      // Rename popover keyboard + click-outside
+      $('rename-inp').addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); saveRename(); }
+        if (e.key === 'Escape') closeRenamePopover();
+      });
+      document.addEventListener('mousedown', e => {
+        if (_renameState && !$('rename-popover').contains(e.target)) closeRenamePopover();
+      });
 
-  // Boot
-  await checkHealth();
-  await loadModels();
-  await refresh();
-});
-</script>
+      document.querySelectorAll('.tab').forEach(btn =>
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          S.tab = btn.dataset.tab;
+          render();
+        })
+      );
+
+      $('btn-close').addEventListener('click', () => $('overlay').classList.remove('open'));
+      $('overlay').addEventListener('click', e => {
+        if (e.target === $('overlay')) $('overlay').classList.remove('open');
+      });
+
+      // Boot
+      await checkHealth();
+      await loadModels();
+      await refresh();
+    });
+  </script>
+  <!-- Rename popover -->
+  <div id="rename-popover">
+    <label>New name</label>
+    <input id="rename-inp" type="text" autocomplete="off" spellcheck="false" />
+    <small>Enter → save &nbsp;·&nbsp; Esc → cancel</small>
+  </div>
+
 </body>
+
 </html>
